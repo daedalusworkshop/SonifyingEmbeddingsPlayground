@@ -6,3 +6,4 @@ venv/
 env/
 data/anchors.pt
 *.DS_Store
+.claude/
