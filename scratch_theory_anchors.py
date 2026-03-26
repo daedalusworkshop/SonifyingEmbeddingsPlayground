@@ -194,8 +194,44 @@ GROUNDED_ANCHORS = [
 ]
 
 
+def run_affect_space(label: str, mapper_class, **mapper_kwargs):
+    """Run the 34-case test using the affect space approach (no embedding model)."""
+    import sys
+    sys.path.insert(0, "src")
+    from affect_space import nearest_chord, all_distances
+    from chords import CHORDS
+
+    numerals = [c.numeral for c in CHORDS]
+    mapper = mapper_class(**mapper_kwargs)
+
+    print(f"\n{'='*60}")
+    print(label)
+    print('='*60)
+
+    correct = 0
+    per_chord: dict[str, list[bool]] = {}
+    for text, expected in TEST_INPUTS:
+        query_vec = mapper.map(text)
+        winner, dist = nearest_chord(query_vec, numerals)
+        hit = winner == expected
+        per_chord.setdefault(expected, []).append(hit)
+        marker = "✓" if hit else f"✗ (→ {winner})"
+        print(f"  [{marker}] '{text}'  (dist={dist:.3f})")
+        if hit:
+            correct += 1
+
+    print(f"\n  {correct}/{len(TEST_INPUTS)} correct")
+    print("  per chord:", {k: f"{sum(v)}/{len(v)}" for k, v in sorted(per_chord.items())})
+    print()
+
+
 if __name__ == "__main__":
-    print("Loading model...")
+    import sys
+    sys.path.insert(0, "src")
+    from query_mapper import LexiconMapper, PromptedMapper
+
+    # ---- Embedding-based variants (use Qwen) ----
+    print("Loading embedding model...")
     model = SentenceTransformer(MODEL_NAME, device="cpu")
 
     # Variant 1: pure theory labels
@@ -211,3 +247,11 @@ if __name__ == "__main__":
 
     # Variant 4: dense grounded keywords, no poetic abstraction
     run("GROUNDED KEYWORDS (dense, direct, research-grounded)", GROUNDED_ANCHORS, model)
+
+    # ---- Affect space variants (no embedding model) ----
+    run_affect_space("AFFECT SPACE + LEXICON MAPPER (VADER)", LexiconMapper)
+
+    try:
+        run_affect_space("AFFECT SPACE + PROMPTED MAPPER (Claude)", PromptedMapper)
+    except Exception as e:
+        print(f"\n[Prompted mapper skipped: {e}]\n")

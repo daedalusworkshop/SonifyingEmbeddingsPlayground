@@ -17,7 +17,7 @@ from pathlib import Path
 # Allow running from project root or from src/
 sys.path.insert(0, str(Path(__file__).parent))
 
-from classifier import Classifier
+from classifier import AffectClassifier, Classifier
 from csound_bridge import CsoundBridge, CsoundNotAvailableError
 
 
@@ -26,6 +26,8 @@ def parse_args():
     p.add_argument("--file", type=Path, help="Read lines from file (one chord per line)")
     p.add_argument("--dry-run", action="store_true", help="Print results without audio")
     p.add_argument("--delay", type=float, default=2.5, help="Seconds between chords in file mode")
+    p.add_argument("--affect-space", action="store_true", help="Use affect space classifier instead of embedding classifier")
+    p.add_argument("--mapper", default="lexicon", choices=["lexicon", "prompted"], help="Query mapper for affect space mode (default: lexicon)")
     return p.parse_args()
 
 
@@ -33,8 +35,12 @@ def main():
     args = parse_args()
 
     # Init classifier
-    print("Loading model and anchors...")
-    classifier = Classifier()
+    if args.affect_space:
+        print(f"Loading affect space classifier (mapper: {args.mapper})...")
+        classifier = AffectClassifier(mapper=args.mapper)
+    else:
+        print("Loading model and anchors...")
+        classifier = Classifier()
 
     # Init audio
     bridge = None
