@@ -1,13 +1,7 @@
 # I: C Major (Tonic) — Emotional Keyword Page
 
 ## Core Adjectives
-stable, resolved, bright, confident, triumphant, grounded, complete, settled, clear, serene, joyful, peaceful, whole, open, certain, sure, solid, balanced, free, luminous, contented, sovereign, clean, final, home
+resolved, arrived, completed, returned, grounded, settled, centered, whole, certain, still, anchored, finished, earned, conclusive, definitive, unambiguous, fundamental, established, recognized, undeniable, final, closed
 
 ## Extended Phrases
-the deep exhale after long effort, standing on solid ground, sunlight breaking through clouds, arriving home after a long journey, the feeling of resolution, a burden finally lifted, the world clicking into place, certainty without arrogance, wholeness without complacency, the end of a question, the center of gravity, a foundation beneath everything, rest that is earned, clarity after confusion, the moment of recognition
-
-## Atmospheric Contexts
-sunlit open fields, the last chord of a hymn, a handshake that means it, the end of a long road, a room full of light, dawn after a sleepless night, finishing what you started, a door that opens easily, the word "yes" after waiting
-
-## Contrasting with Neighbors
-Unlike IV, which reaches outward with longing, I has already arrived. Unlike V, which strains forward with anticipation, I has nothing left to want. It is not passive like iii — it is active completion.
+the moment of arrival after a long journey, tonal resolution after harmonic tension, a question finally answered after prolonged waiting, returning to a place that was always home, the exhale that follows genuine sustained effort, standing exactly where you were always going, coming full circle after traversal, rest that was truly earned through difficulty, a tension that has completely released, everything clicking into place after prolonged uncertainty, the center of gravity that other things orbit, the satisfaction of a door that finally closes cleanly, recognition — not discovery but confirmation of what was always true, the cadence that ends the phrase, a homecoming after absence, the feeling of having traversed something and arrived

@@ -1,0 +1,12 @@
+{
+  "model": "Qwen/Qwen3-Embedding-0.6B",
+  "hashes": {
+    "I-tonic.md": "fb71922c93209c93ab6eee24eb9a1719a447fc8f24fb05dbf00afec25726e672",
+    "ii-supertonic.md": "c6eeaab15543a0f2da143d2af31711cbd0fc2b4feb16b3a4d7565ac5b9da62f8",
+    "iii-mediant.md": "c0eb650051683b258d84fd1e8ee0df51b87b0cb50b40d7583f59ec6e0d0ec326",
+    "IV-subdominant.md": "45367c6b8dc6641d51a3a0a3e1ab783f1048ec60494aed920ffa06d8a3f1c387",
+    "V-dominant.md": "c8843a5cf61e195e220a02092d5140c0da2e8b3dd0ab139281369068a8fc0d33",
+    "vi-submediant.md": "e45dc139c733804cffd0c58f3bdcfc20e075e2a988a2d6e1850db9f64037038e",
+    "viidim-leading.md": "20034b07f9d4093b053d236990d99efee0eb80dbc6ffa59abea04a4c393345c8"
+  }
+}
