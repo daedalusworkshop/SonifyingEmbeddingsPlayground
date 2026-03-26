@@ -7,11 +7,15 @@ import torch
 from sentence_transformers import SentenceTransformer, util
 
 import anchor_builder
-from chords import CHORDS, TIE_BREAK_ORDER, ChordResult
+from chords import CHORDS, ChordResult
 
-MODEL_NAME = "all-MiniLM-L6-v2"
-CONFIDENCE_THRESHOLD = 0.15
-TIE_TOLERANCE = 0.02
+MODEL_NAME = "Qwen/Qwen3-Embedding-0.6B"
+INSTRUCTION = (
+    "Instruct: Represent this text by its emotional and affective character "
+    "for matching to a musical chord.\nQuery: "
+)
+CONFIDENCE_THRESHOLD = 0.40  # Qwen scores are higher; raise threshold accordingly
+TEMPERATURE = 0.05  # lower → closer to argmax; higher → more harmonic variety
 
 
 class Classifier:
@@ -32,7 +36,7 @@ class Classifier:
                 low_confidence=True,
             )
 
-        text_emb = self.model.encode(text, convert_to_tensor=True)
+        text_emb = self.model.encode(INSTRUCTION + text, convert_to_tensor=True, normalize_embeddings=True)
         scores_tensor = util.cos_sim(text_emb, self.anchors)[0]
         scores = [float(scores_tensor[i]) for i in range(len(CHORDS))]
         all_scores = {CHORDS[i].numeral: scores[i] for i in range(len(CHORDS))}
@@ -40,23 +44,15 @@ class Classifier:
         best_score = max(scores)
         low_confidence = best_score < CONFIDENCE_THRESHOLD
 
-        if low_confidence:
-            best_idx = 0  # fallback to I
-        else:
-            # Collect all indices within tie tolerance of the best
-            candidates = [i for i, s in enumerate(scores) if best_score - s <= TIE_TOLERANCE]
-            if len(candidates) == 1:
-                best_idx = candidates[0]
-            else:
-                # Break tie using functional harmony priority
-                priority = {n: i for i, n in enumerate(TIE_BREAK_ORDER)}
-                best_idx = min(candidates, key=lambda i: priority.get(CHORDS[i].numeral, 99))
+        # Temperature sampling: ties and ambiguous cases produce natural harmonic variety
+        probs = torch.softmax(scores_tensor / TEMPERATURE, dim=0)
+        chosen_idx = int(torch.multinomial(probs, 1).item())
 
-        chord = CHORDS[best_idx]
+        chord = CHORDS[chosen_idx]
         return ChordResult(
             numeral=chord.numeral,
             name=chord.name,
-            score=best_score,
+            score=scores[chosen_idx],
             all_scores=all_scores,
             midi_notes=chord.midi_notes,
             frequencies=chord.frequencies,
