@@ -26,9 +26,23 @@ from affect_space import DIMENSIONS, N_DIMS
 # Format: word → [tension_delta, direction_delta, expressiveness_delta]
 # Values are added to a neutral baseline of 0.5 before clamping to [0, 1].
 _KEYWORD_OVERRIDES: dict[str, list[float]] = {
-    # High tension words
+    # --- HIGH TENSION / vii° ---
     "tension":      [ 0.45,  0.30,  0.20],
     "unresolved":   [ 0.45,  0.20,  0.10],
+    "dissonant":    [ 0.45,  0.10,  0.10],
+    "unstable":     [ 0.40,  0.10,  0.15],
+    "broken":       [ 0.40,  0.05,  0.20],
+    "wrong":        [ 0.35,  0.00,  0.15],
+    "vertigo":      [ 0.40,  0.10,  0.25],
+    "shifting":     [ 0.30,  0.05,  0.15],
+    "discomfort":   [ 0.35,  0.05,  0.20],
+    "sharp":        [ 0.30,  0.05,  0.25],
+    "falls":        [ 0.25, -0.10,  0.15],
+    "apart":        [ 0.30, -0.10,  0.20],
+    "collapse":     [ 0.40,  0.05,  0.25],
+    "dark":         [ 0.20,  0.05,  0.15],
+    "chaotic":      [ 0.40,  0.05,  0.30],
+    # --- HIGH TENSION / V (anticipatory) ---
     "urgent":       [ 0.35,  0.40,  0.30],
     "anticipation": [ 0.35,  0.45,  0.20],
     "anxious":      [ 0.35,  0.10,  0.10],
@@ -37,9 +51,13 @@ _KEYWORD_OVERRIDES: dict[str, list[float]] = {
     "coiled":       [ 0.35,  0.35,  0.15],
     "about":        [ 0.20,  0.30,  0.00],
     "imminent":     [ 0.30,  0.40,  0.10],
-    "dissonant":    [ 0.45,  0.10,  0.10],
-    "unstable":     [ 0.40,  0.10,  0.15],
-    # Resolved / tonic words
+    "breath":       [ 0.25,  0.30,  0.20],
+    "plunge":       [ 0.35,  0.35,  0.30],
+    "energy":       [ 0.25,  0.25,  0.25],
+    "ready":        [ 0.20,  0.30,  0.15],
+    "release":      [ 0.15,  0.20,  0.25],
+    "moment":       [ 0.10,  0.20,  0.00],
+    # --- RESOLVED / tonic ---
     "resolved":     [-0.45, -0.35, -0.20],
     "settled":      [-0.40, -0.30, -0.25],
     "arrived":      [-0.35, -0.35, -0.10],
@@ -49,7 +67,7 @@ _KEYWORD_OVERRIDES: dict[str, list[float]] = {
     "still":        [-0.30, -0.40, -0.25],
     "grounded":     [-0.35, -0.35, -0.20],
     "whole":        [-0.30, -0.30, -0.15],
-    # Anticipatory / forward words
+    # --- ANTICIPATORY / forward (V / ii) ---
     "coming":       [ 0.10,  0.35,  0.05],
     "before":       [ 0.15,  0.30,  0.00],
     "soon":         [ 0.10,  0.35,  0.05],
@@ -57,7 +75,16 @@ _KEYWORD_OVERRIDES: dict[str, list[float]] = {
     "toward":       [ 0.05,  0.35,  0.10],
     "reaching":     [ 0.15,  0.30,  0.15],
     "seeking":      [ 0.10,  0.30,  0.10],
-    # Retrospective / backward words
+    # --- YEARNING / ii ---
+    "longing":      [ 0.15,  0.25,  0.20],
+    "curious":      [ 0.10,  0.20,  0.10],
+    "wandering":    [ 0.10,  0.15,  0.10],
+    "hopeful":      [ 0.10,  0.25,  0.10],
+    "question":     [ 0.15,  0.15,  0.10],
+    "yearning":     [ 0.20,  0.25,  0.20],
+    "uncertain":    [ 0.15,  0.10,  0.05],
+    "searching":    [ 0.10,  0.20,  0.15],
+    # --- RETROSPECTIVE / backward (vi) ---
     "past":         [-0.05, -0.35,  0.10],
     "looking":      [-0.05, -0.20,  0.05],
     "back":         [-0.05, -0.35,  0.10],
@@ -66,7 +93,13 @@ _KEYWORD_OVERRIDES: dict[str, list[float]] = {
     "nostalgically":[-0.05, -0.40,  0.20],
     "gone":         [-0.05, -0.35,  0.20],
     "passed":       [-0.05, -0.35,  0.15],
-    # Open / expressive words
+    "wistful":      [-0.05, -0.35,  0.25],
+    "bittersweet":  [ 0.05, -0.20,  0.35],
+    "sadness":      [ 0.05, -0.15,  0.30],
+    "missing":      [ 0.05, -0.25,  0.30],
+    "ache":         [ 0.10, -0.10,  0.35],
+    "autumn":       [-0.05, -0.25,  0.20],
+    # --- OPEN / expressive (IV / vi) ---
     "open":         [-0.05, -0.05,  0.35],
     "expansive":    [-0.05,  0.05,  0.35],
     "vast":         [-0.05,  0.00,  0.35],
@@ -74,7 +107,12 @@ _KEYWORD_OVERRIDES: dict[str, list[float]] = {
     "exposed":      [ 0.10,  0.05,  0.40],
     "wide":         [-0.05, -0.05,  0.30],
     "breathe":      [-0.10, -0.10,  0.25],
-    # Interior / private words
+    "outside":      [-0.05,  0.10,  0.30],
+    "sky":          [-0.05,  0.05,  0.25],
+    "landscape":    [-0.10,  0.05,  0.30],
+    "generous":     [-0.05,  0.05,  0.30],
+    "morning":      [-0.05,  0.20,  0.25],
+    # --- INTERIOR / private (iii) ---
     "inward":       [ 0.00, -0.15, -0.35],
     "interior":     [ 0.00, -0.10, -0.30],
     "private":      [ 0.00, -0.10, -0.30],

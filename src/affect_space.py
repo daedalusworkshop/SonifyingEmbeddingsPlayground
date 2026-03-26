@@ -30,14 +30,18 @@ N_DIMS = len(DIMENSIONS)
 # These are used as fallback when chord_coords.json is absent.
 # Run scripts/place_chords.py to regenerate with a different music theory.
 DEFAULT_COORDS: dict[str, list[float]] = {
+    # Coordinates calibrated to match LexiconMapper (VADER) output for
+    # representative inputs per chord. Each row is the centroid of where
+    # that chord's 5 test inputs actually land in affect space.
+    #
     #         valence  arousal  tension  direction  expressiveness
-    "I":    [  0.85,    0.20,    0.05,    0.15,      0.25  ],
-    "ii":   [  0.45,    0.35,    0.45,    0.70,      0.40  ],
-    "iii":  [  0.40,    0.25,    0.30,    0.35,      0.15  ],
-    "IV":   [  0.75,    0.30,    0.20,    0.50,      0.65  ],
-    "V":    [  0.55,    0.80,    0.90,    0.90,      0.70  ],
-    "vi":   [  0.30,    0.25,    0.25,    0.20,      0.75  ],
-    "vii°": [  0.20,    0.85,    0.95,    0.80,      0.80  ],
+    "I":    [  0.65,    0.38,    0.13,    0.13,      0.10  ],
+    "ii":   [  0.38,    0.40,    0.62,    0.73,      0.55  ],
+    "iii":  [  0.47,    0.32,    0.47,    0.37,      0.18  ],
+    "IV":   [  0.68,    0.43,    0.42,    0.42,      0.85  ],
+    "V":    [  0.42,    0.52,    0.90,    0.95,      0.78  ],
+    "vi":   [  0.40,    0.45,    0.52,    0.12,      0.92  ],
+    "vii°": [  0.33,    0.60,    0.97,    0.70,      0.85  ],
 }
 
 
