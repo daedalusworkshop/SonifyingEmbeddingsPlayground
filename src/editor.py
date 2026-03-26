@@ -69,8 +69,18 @@ class ClassifierWorker(QThread):
         self._queue.put(None)  # unblock get()
 
     def run(self) -> None:
+        # MPS (Apple Silicon GPU) hard-crashes inside QThread during attention
+        # computation. Force CPU for the embedding model.
+        try:
+            import torch
+            torch.backends.mps.is_available = lambda: False  # type: ignore[method-assign]
+        except Exception:
+            pass
+
         try:
             self._classifier = Classifier()
+            # Anchors may be cached on MPS; move to CPU to match the forced-CPU model
+            self._classifier.anchors = self._classifier.anchors.cpu()
         except Exception as exc:
             self.error.emit(str(exc))
             return
@@ -278,9 +288,10 @@ class ChordEditorWindow(QMainWindow):
 
     @staticmethod
     def _monospace_font(size: int) -> QFont:
+        available = QFontDatabase.families()
         for family in ("Menlo", "Courier New", "monospace"):
-            font = QFont(family, size)
-            if QFontDatabase.hasFamily(family):
+            if family in available:
+                font = QFont(family, size)
                 font.setFixedPitch(True)
                 return font
         font = QFont()
@@ -377,7 +388,10 @@ class ChordEditorWindow(QMainWindow):
         )
         if not path:
             return
+        self._export_to(path)
 
+    def _export_to(self, path: str) -> None:
+        """Write .json and .txt to <path> (without extension). Used by tests."""
         base = Path(path)
         # Strip any extension the user typed so we always write .json and .txt
         if base.suffix in (".json", ".txt"):
