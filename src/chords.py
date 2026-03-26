@@ -24,13 +24,13 @@ def midi_to_freq(midi_note: int) -> float:
 
 # Canonical order — must match row order in data/anchors.pt
 CHORDS: list[ChordDef] = [
-    ChordDef("I",    "C major",    [60, 64, 67], "I-tonic.md"),
-    ChordDef("ii",   "D minor",    [62, 65, 69], "ii-supertonic.md"),
-    ChordDef("iii",  "E minor",    [64, 67, 71], "iii-mediant.md"),
-    ChordDef("IV",   "F major",    [65, 69, 72], "IV-subdominant.md"),
-    ChordDef("V",    "G major",    [67, 71, 74], "V-dominant.md"),
-    ChordDef("vi",   "A minor",    [69, 72, 76], "vi-submediant.md"),
-    ChordDef("vii°", "B diminished", [71, 74, 77], "viidim-leading.md"),
+    ChordDef("I",    "C major",    [48, 52, 55], "I-tonic.md"),
+    ChordDef("ii",   "D minor",    [50, 53, 57], "ii-supertonic.md"),
+    ChordDef("iii",  "E minor",    [52, 55, 59], "iii-mediant.md"),
+    ChordDef("IV",   "F major",    [53, 57, 60], "IV-subdominant.md"),
+    ChordDef("V",    "G major",    [55, 59, 62], "V-dominant.md"),
+    ChordDef("vi",   "A minor",    [57, 60, 64], "vi-submediant.md"),
+    ChordDef("vii°", "B diminished", [59, 62, 65], "viidim-leading.md"),
 ]
 
 # Tie-breaking priority: index = priority (lower = higher priority)

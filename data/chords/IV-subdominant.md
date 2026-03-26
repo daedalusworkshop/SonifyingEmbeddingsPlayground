@@ -1,7 +1,7 @@
 # IV: F Major (Subdominant) — Emotional Keyword Page
 
 ## Core Adjectives
-warm, uplifting, hopeful, earnest, expansive, spiritual, sincere, open, reaching, reverent, yearning, sublime, generous, tender, luminous, devotional, hymn-like, longing, aspiring, heartfelt, dignified, solemn, broad, wide, elevated
+aspiring, devotional, reverent, spiritual, uplifting, generous, offering, expansive, elevated, solemn, hymn-like, sincere, faithful, earnest, dignified, broad, wide, reaching, transcendent, worshipful, noble, hopeful, open, luminous, sublime
 
 ## Extended Phrases
-reaching toward something greater than yourself, the feeling of a hymn rising in a large space, hope that doesn't yet know if it will be answered, turning your face toward the light, sincerity without irony, longing that is itself beautiful, a gesture of offering, the horizon line just before sunset, departure that is also a gift, love expressed without expectation of return, faith in something unseen, the feeling of singing with others, the ache of wanting to be better, a prayer that doesn't demand an answer
+reaching toward something greater than yourself, the feeling of a hymn rising in a large stone space, turning your face toward the light, faith in something unseen, a gesture of pure offering without expectation of return, love expressed as dedication not emotion, the choir lifting together, sincerity without irony or qualification, a prayer that doesn't demand an answer, devotion to something larger than the self, the ache of aspiration — wanting to be more, be better, rise higher, singing with other voices in unison, the horizon at the moment of first light, giving what you have without knowing if it will be enough, the soul reaching upward, consecration, the feeling of a vow

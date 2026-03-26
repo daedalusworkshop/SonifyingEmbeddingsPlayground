@@ -101,11 +101,26 @@ class ClassifierWorker(QThread):
 class EditorPane(QPlainTextEdit):
     """Left pane: only the last (bottom) line is editable."""
 
-    line_submitted = pyqtSignal(int, str)   # (line_index, text)
+    line_submitted  = pyqtSignal(int, str)  # (line_index, text)
+    reset_requested = pyqtSignal()          # emitted when all text is deleted at once
+    line_focused    = pyqtSignal(int)       # emitted when cursor lands on a different block
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self._enabled = False  # True once the model is loaded
+        self._focused_block = -1
+        self.document().contentsChanged.connect(self._check_empty)
+        self.cursorPositionChanged.connect(self._on_cursor_moved)
+
+    def _on_cursor_moved(self) -> None:
+        block_num = self.textCursor().blockNumber()
+        if block_num != self._focused_block:
+            self._focused_block = block_num
+            self.line_focused.emit(block_num)
+
+    def _check_empty(self) -> None:
+        if self._enabled and self.document().toPlainText() == "":
+            self.reset_requested.emit()
 
     def enable_editing(self) -> None:
         self._enabled = True
@@ -144,22 +159,26 @@ class EditorPane(QPlainTextEdit):
         doc = self.document()
         last_block = doc.lastBlock()
 
-        # Intercept keys that would move the cursor off the last block
-        nav_keys = {
-            Qt.Key.Key_Up, Qt.Key.Key_Left, Qt.Key.Key_Home,
-            Qt.Key.Key_PageUp,
+        # Up/Down/PageUp/PageDown navigate freely so cursor can land on previous lines
+        free_nav_keys = {
+            Qt.Key.Key_Up, Qt.Key.Key_Down,
+            Qt.Key.Key_PageUp, Qt.Key.Key_PageDown,
         }
-        if event.key() in nav_keys:
-            # Allow cursor movement but prevent editing — handled by the block guard below
+        if event.key() in free_nav_keys:
             super().keyPressEvent(event)
-            # If cursor has moved off the last block, snap it back
+            return
+
+        # Left/Home snap back if they would leave the last block
+        snap_nav_keys = {Qt.Key.Key_Left, Qt.Key.Key_Home}
+        if event.key() in snap_nav_keys:
+            super().keyPressEvent(event)
             if self.textCursor().blockNumber() != last_block.blockNumber():
                 c = self.textCursor()
                 c.movePosition(c.MoveOperation.End)
                 self.setTextCursor(c)
             return
 
-        # If cursor is not on the last block, snap it back before applying input
+        # For any editing key: if cursor wandered to a previous line, snap back first
         if cursor.blockNumber() != last_block.blockNumber():
             cursor.movePosition(cursor.MoveOperation.End)
             self.setTextCursor(cursor)
@@ -243,6 +262,8 @@ class ChordEditorWindow(QMainWindow):
         self._editor.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
         self._editor.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self._editor.line_submitted.connect(self._on_line_submitted)
+        self._editor.reset_requested.connect(self._on_reset)
+        self._editor.line_focused.connect(self._on_line_focused)
 
         # Right pane
         self._annot = AnnotationPane()
@@ -338,6 +359,9 @@ class ChordEditorWindow(QMainWindow):
             "name": None,
             "score": None,
             "low_confidence": None,
+            "frequencies": None,
+            "midi_notes": None,
+            "all_scores": None,
         })
 
         # Enqueue classification
@@ -345,6 +369,38 @@ class ChordEditorWindow(QMainWindow):
 
         # Sync annotation pane scroll with editor
         self._sync_scroll()
+
+    def _on_reset(self) -> None:
+        """All text was deleted — stop audio and clear the session."""
+        if self._bridge:
+            self._bridge.stop_all()
+        self._annot.clear()
+        self._submitted.clear()
+        self._annotation_row.clear()
+
+    def _on_line_focused(self, block_num: int) -> None:
+        """Play the saved chord when cursor lands on a completed line."""
+        last_block_num = self._editor.document().lastBlock().blockNumber()
+        if block_num >= last_block_num:
+            return  # cursor on the input line — nothing to replay
+        if block_num >= len(self._submitted):
+            return
+        entry = self._submitted[block_num]
+        if entry["numeral"] is None:
+            return  # not yet classified
+        result = ChordResult(
+            numeral=entry["numeral"],
+            name=entry["name"],
+            score=entry["score"],
+            all_scores=entry["all_scores"] or {},
+            midi_notes=entry["midi_notes"] or [],
+            frequencies=entry["frequencies"] or [],
+            low_confidence=entry["low_confidence"],
+        )
+        if self._bridge:
+            self._bridge.play_chord(result)
+        else:
+            print(f"[dry-run] replay {result.numeral} ({result.name}) — score: {result.score:.2f}")
 
     def _on_classify_result(self, line_index: int, result: ChordResult) -> None:
         # line_index == submitted list index: block N was the (N+1)th line submitted
@@ -362,6 +418,9 @@ class ChordEditorWindow(QMainWindow):
                 "name": result.name,
                 "score": round(result.score, 4),
                 "low_confidence": result.low_confidence,
+                "frequencies": result.frequencies,
+                "midi_notes": result.midi_notes,
+                "all_scores": result.all_scores,
             })
 
         # Play or dry-run print

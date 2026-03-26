@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Words → Chords: The Research Behind It</title>
+  <style>
+    :root {
+      --bg: #111;
+      --surface: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #e0e0e0;
+      --muted: #888;
+      --accent: #7eb8f7;
+      --accent2: #c5a7f7;
+      --accent3: #7ef7c0;
+      --warn: #f7c87e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    /* ── Nav ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(17,17,17,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      height: 52px;
+    }
+
+    header .logo {
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    nav { display: flex; gap: 0.25rem; }
+
+    nav button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    nav button:hover { color: var(--text); background: var(--surface); }
+    nav button.active { color: var(--text); background: var(--border); }
+
+    /* ── Layout ── */
+    .page { display: none; max-width: 860px; margin: 0 auto; padding: 3rem 2rem 6rem; }
+    .page.visible { display: block; }
+
+    h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.4rem; }
+    h2 { font-size: 1.2rem; font-weight: 600; margin: 2.5rem 0 0.75rem; color: var(--text); }
+    h3 { font-size: 0.95rem; font-weight: 600; margin: 1.5rem 0 0.4rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    p  { margin-bottom: 0.9rem; color: #ccc; }
+
+    .subtitle { color: var(--muted); font-size: 1rem; margin-bottom: 2.5rem; }
+
+    .tag {
+      display: inline-block;
+      background: var(--border);
+      color: var(--muted);
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 1.5rem;
+    }
+
+    blockquote {
+      border-left: 2px solid var(--border);
+      padding: 0.6rem 1.2rem;
+      color: var(--muted);
+      margin: 1rem 0 1.5rem;
+      font-style: italic;
+    }
+
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .callout strong { color: var(--text); }
+
+    .this-project {
+      background: #1a2030;
+      border: 1px solid #2a3a55;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 2rem 0;
+      font-size: 0.9rem;
+    }
+    .this-project .label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+    .this-project p { color: #aac4e8; margin-bottom: 0; }
+
+    /* ── Hevner Circle ── */
+    #hevner-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 2rem 0;
+    }
+
+    #hevner-svg { cursor: pointer; }
+
+    #hevner-detail {
+      margin-top: 1.5rem;
+      min-height: 120px;
+      width: 100%;
+      max-width: 520px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.2rem 1.5rem;
+      transition: opacity 0.2s;
+    }
+
+    #hevner-detail h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    #hevner-detail .words {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 0.75rem;
+    }
+
+    #hevner-detail .word {
+      background: var(--border);
+      border-radius: 4px;
+      padding: 2px 9px;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    #hevner-detail .chord-link {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    #hevner-detail .chord-link span {
+      display: inline-block;
+      background: #1a2030;
+      border: 1px solid #2a3a55;
+      border-radius: 4px;
+      padding: 1px 8px;
+      margin-left: 4px;
+      color: var(--accent);
+      font-size: 12px;
+    }
+
+    .hevner-hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+
+    /* ── Lbl2Vec diagram ── */
+    .pipeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 2rem 0;
+    }
+
+    .pipe-step {
+      display: flex;
+      gap: 1rem;
+      cursor: pointer;
+      padding: 0.9rem 1rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      transition: background 0.15s, border-color 0.15s;
+      position: relative;
+    }
+
+    .pipe-step:hover, .pipe-step.active {
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    .pipe-step .num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .pipe-step.active .num {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    .pipe-step .content { flex: 1; }
+    .pipe-step .title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem; }
+    .pipe-step .desc { font-size: 0.85rem; color: var(--muted); }
+
+    .pipe-step .detail {
+      font-size: 0.85rem;
+      color: #bbb;
+      margin-top: 0.6rem;
+      display: none;
+      background: #161616;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      border-left: 2px solid var(--accent);
+    }
+
+    .pipe-step.active .detail { display: block; }
+
+    .connector {
+      width: 1px;
+      height: 16px;
+      background: var(--border);
+      margin-left: 22px;
+    }
+
+    /* ── Compare table ── */
+    .compare {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 13px;
+    }
+
+    .compare th {
+      text-align: left;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .compare td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #1e1e1e;
+      color: #ccc;
+      vertical-align: top;
+    }
+
+    .compare tr:last-child td { border-bottom: none; }
+    .compare .yes { color: var(--accent3); }
+    .compare .no  { color: #f77e7e; }
+    .compare .highlight td { background: #1a2030; }
+
+    /* ── EMOPIA Quadrant ── */
+    #va-wrap {
+      margin: 2rem 0;
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    #va-canvas-wrap {
+      position: relative;
+    }
+
+    #va-canvas { cursor: crosshair; display: block; border-radius: 8px; }
+
+    #va-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(26,26,26,0.95);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--text);
+      max-width: 200px;
+      display: none;
+      z-index: 10;
+    }
+
+    #va-legend {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .q-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      font-size: 13px;
+    }
+
+    .q-card:hover { background: var(--surface); }
+    .q-card.active { border-color: var(--accent); }
+
+    .q-card .q-label { font-weight: 600; margin-bottom: 0.2rem; }
+    .q-card .q-words { color: var(--muted); font-size: 12px; }
+
+    .q1 .q-label { color: #f7e87e; }
+    .q2 .q-label { color: #f77e7e; }
+    .q3 .q-label { color: #7eb8f7; }
+    .q4 .q-label { color: var(--accent3); }
+
+    /* ── Dots on VA canvas ── */
+    .chord-dot { transition: r 0.15s; }
+
+    /* ── Code ── */
+    code {
+      font-family: "Menlo", "Courier New", monospace;
+      font-size: 12px;
+      background: var(--surface);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: #f7c87e;
+    }
+
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-size: 12px;
+      overflow-x: auto;
+      margin: 1rem 0 1.5rem;
+      line-height: 1.55;
+      color: #ccc;
+    }
+    pre .k { color: var(--accent2); }
+    pre .s { color: var(--accent3); }
+    pre .c { color: #555; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      font-size: 12px;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Words → Chords · Research</div>
+  <nav>
+    <button class="active" onclick="show('hevner', this)">Hevner's Circle</button>
+    <button onclick="show('lbl2vec', this)">Lbl2Vec</button>
+    <button onclick="show('emopia', this)">EMOPIA</button>
+  </nav>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 1: HEVNER
+═══════════════════════════════════════════════════════ -->
+<div id="page-hevner" class="page visible">
+  <div class="tag">Music Psychology · 1936</div>
+  <h1>Hevner's Adjective Circle</h1>
+  <p class="subtitle">The first systematic map of how music feels — and the foundation of this project's chord corpus.</p>
+
+  <p>In 1936, Kate Hevner played excerpts of classical music to listeners and asked them to circle adjectives from a checklist that matched the mood. She then grouped adjectives that were frequently circled together and arranged the groups in a circle so that emotionally adjacent clusters sat next to each other.</p>
+
+  <p>The result: eight clusters, arranged so that moving clockwise takes you from dignified → sad → dreamy → serene → graceful → happy → exciting → vigorous and back again. Neighboring clusters share emotional territory; opposite clusters are maximally different.</p>
+
+  <div id="hevner-wrap">
+    <svg id="hevner-svg" width="420" height="420" viewBox="0 0 420 420">
+      <!-- rendered by JS -->
+    </svg>
+    <p class="hevner-hint">Click a cluster to explore its adjectives</p>
+    <div id="hevner-detail">
+      <p style="color:var(--muted); font-size:13px;">Select a cluster above to see its adjectives and its closest chord in this project.</p>
+    </div>
+  </div>
+
+  <h2>Why a Circle?</h2>
+  <p>The circular arrangement isn't decorative — it encodes a continuous emotional topology. There are no hard boundaries between clusters; the space is smooth. "Sad" and "dreamy" bleed into each other; "vigorous" and "exciting" overlap. This is why embedding-based classification (which also produces a smooth similarity space) is such a natural fit for mood-based chord selection.</p>
+
+  <h2>The Gap Between 1936 and This Project</h2>
+  <p>Hevner described the emotional character of full musical pieces, not individual chords. Applying her clusters to single chords required a further inference step: empirical chord-emotion research (from the 1990s onward) showed that major chords cluster in the upper-right of the circle (happy, graceful) while minor chords fall in the upper-left and lower regions (dignified, sad, dreamy). The dominant chord (V) sits in the exciting/vigorous zone; the tonic (I) occupies the serene/graceful region when approached from dominant.</p>
+
+  <div class="this-project">
+    <div class="label">In this project</div>
+    <p>Each chord's keyword page in <code>data/chords/*.md</code> is a hand-curated Hevner-style adjective list. The "Core Adjectives" section maps directly to one or two Hevner clusters. The embedding model then turns those adjective pages into vectors — essentially doing computationally what Hevner's listeners did perceptually: placing emotional descriptions in a continuous space where similar feelings live close together.</p>
+  </div>
+
+  <h2>Later Refinements</h2>
+  <p>Farnsworth (1954) extended the circle to 10 groups. Other researchers merged it with Russell's two-dimensional valence-arousal model. But Hevner's original structure remains the most widely cited categorical framework in music emotion research — it still appears in papers published in 2024.</p>
+
+  <blockquote>"The structure of the adjective circle corresponds to the structure of musical affect — both are smooth, continuous, and without natural category boundaries."<br><small>— Paraphrase of Hevner (1936)</small></blockquote>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 2: LBL2VEC
+═══════════════════════════════════════════════════════ -->
+<div id="page-lbl2vec" class="page">
+  <div class="tag">Zero-Shot Classification · 2022</div>
+  <h1>Lbl2Vec</h1>
+  <p class="subtitle">Classify documents using only natural-language descriptions of categories — no labeled training examples needed.</p>
+
+  <p>Lbl2Vec (Schopf, 2022) is a zero-shot text classification technique. The core insight: if you can describe what a category <em>means</em> in plain language, you can classify new documents by measuring how similar they are to those descriptions — in embedding space.</p>
+
+  <p>No labeled examples. No fine-tuning. Just: describe your categories → embed them → embed the query → pick the closest.</p>
+
+  <h2>The Algorithm</h2>
+  <p>Click each step to expand it.</p>
+
+  <div class="pipeline" id="pipeline">
+    <div class="pipe-step active" onclick="toggleStep(this)">
+      <div class="num">1</div>
+      <div class="content">
+        <div class="title">Write label descriptions</div>
+        <div class="desc">For each category, write a set of representative keywords or phrases.</div>
+        <div class="detail">
+          You don't need labeled data — you need <em>knowledge</em> about what each category means. This is expressed as a short keyword list or paragraph per category.<br><br>
+          In the original Lbl2Vec paper, label descriptions were a handful of keywords (e.g. for a "sports" category: "athlete, game, score, team, tournament"). This project uses much richer pages — hundreds of adjectives and phrases per chord — which produces stronger, more distinctive anchor vectors.
+        </div>
+      </div>
+    </div>
+    <div class="connector"></div>
+
+    <div class="pipe-step" onclick="toggleStep(this)">
+      <div class="num">2</div>
+      <div class="content">
+        <div class="title">Embed the descriptions → label vectors</div>
+        <div class="desc">Run each description through an embedding model to get a fixed-size vector.</div>
+        <div class="detail">
+          Each category description becomes a single vector in embedding space. These are called <strong>prototypes</strong> or <strong>anchors</strong>. They are computed once and cached — this is the "build time" step.<br><br>
+          In this project: <code>python src/anchor_builder.py</code> reads all 7 chord pages, encodes each one, and saves the result to <code>data/anchors.pt</code> — a (7 × 1024) tensor.
+        </div>
+      </div>
+    </div>
+    <div class="connector"></div>
+
+    <div class="pipe-step" onclick="toggleStep(this)">
+      <div class="num">3</div>
+      <div class="content">
+        <div class="title">Embed the query document</div>
+        <div class="desc">At classification time, embed the input text with the same model.</div>
+        <div class="detail">
+          The query is encoded using the <em>same</em> embedding model and the <em>same</em> instruction prefix used at build time. This is critical — if the query and label vectors were encoded differently, the similarity scores would be meaningless.<br><br>
+          In this project: the instruction prefix <code>"Instruct: Represent this text by its emotional and affective character…"</code> is applied to both chord pages at build time and to the input text at query time.
+        </div>
+      </div>
+    </div>
+    <div class="connector"></div>
+
+    <div class="pipe-step" onclick="toggleStep(this)">
+      <div class="num">4</div>
+      <div class="content">
+        <div class="title">Cosine similarity → scores</div>
+        <div class="desc">Compute the cosine similarity between the query vector and every label vector.</div>
+        <div class="detail">
+          Cosine similarity measures the angle between two vectors — 1.0 means identical direction, 0 means orthogonal, −1 means opposite. Because both vectors are L2-normalized, this is equivalent to a dot product.<br><br>
+          Result: one score per category. Higher score = the query is more like that label's description.
+        </div>
+      </div>
+    </div>
+    <div class="connector"></div>
+
+    <div class="pipe-step" onclick="toggleStep(this)">
+      <div class="num">5</div>
+      <div class="content">
+        <div class="title">Pick the winning label</div>
+        <div class="desc">Return the category with the highest similarity, optionally with a confidence threshold.</div>
+        <div class="detail">
+          Original Lbl2Vec uses argmax. This project uses <strong>temperature sampling</strong>: compute <code>softmax(scores / T)</code> at T=0.05, then sample. This is nearly identical to argmax for clear-cut cases (large gap between best and second-best) but produces natural variety for ambiguous inputs rather than always collapsing to the same default chord.<br><br>
+          If the best score is below 0.40 (the confidence threshold), the result is flagged <code>low_confidence=True</code>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>How It Compares to Other Approaches</h2>
+
+  <table class="compare">
+    <thead>
+      <tr>
+        <th>Approach</th>
+        <th>Labeled data needed?</th>
+        <th>Accuracy ceiling</th>
+        <th>Latency</th>
+        <th>Human control</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="highlight">
+        <td><strong>Lbl2Vec / anchor embedding</strong><br><small>(this project)</small></td>
+        <td class="yes">None</td>
+        <td>Medium</td>
+        <td class="yes">Fast (1 encode + N dot products)</td>
+        <td class="yes">High — edit the description pages</td>
+      </tr>
+      <tr>
+        <td><strong>NLI zero-shot</strong><br><small>(bart-large-mnli)</small></td>
+        <td class="yes">None</td>
+        <td>Medium-high</td>
+        <td>Slower (1 forward pass per class)</td>
+        <td>Medium</td>
+      </tr>
+      <tr>
+        <td><strong>SetFit</strong></td>
+        <td class="no">8–16 per class</td>
+        <td class="yes">High</td>
+        <td class="yes">Fast after training</td>
+        <td>Low</td>
+      </tr>
+      <tr>
+        <td><strong>Fine-tuned classifier</strong></td>
+        <td class="no">Hundreds per class</td>
+        <td class="yes">Highest</td>
+        <td class="yes">Fast</td>
+        <td class="no">Low — retrain to change behavior</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>What Makes This Project's Version Richer</h2>
+  <p>Standard Lbl2Vec uses a short keyword list (5–10 words) per label. This project uses full keyword <em>pages</em> — 20–30 adjectives plus 10–15 extended phrases per chord, sourced from Hevner's research. Richer descriptions produce more distinctive anchor vectors, which improves separation between neighboring emotional categories (e.g. "longing" vs. "sadness").</p>
+
+  <div class="callout">
+    <strong>The anchor quality check:</strong> after building, <code>anchor_builder.py</code> prints a 7×7 pairwise cosine similarity matrix. All off-diagonal values should be below 0.85. If any pair is above that threshold, those two chord pages are too emotionally similar and need to be revised.
+  </div>
+
+  <div class="this-project">
+    <div class="label">In this project</div>
+    <p>The name "anchor" comes from this family of techniques — precomputed label prototypes that "anchor" each category in embedding space. The instruction-aware Qwen3-Embedding model gives this project an edge over standard Lbl2Vec: by telling the model to focus on <em>emotional and affective character</em>, the anchor vectors are tuned to the right dimension of meaning rather than general semantic content.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 3: EMOPIA
+═══════════════════════════════════════════════════════ -->
+<div id="page-emopia" class="page">
+  <div class="tag">Dataset · ISMIR 2021</div>
+  <h1>EMOPIA</h1>
+  <p class="subtitle">The only public dataset that links chord progressions to emotion labels — a potential ground truth for this project's chord→emotion mappings.</p>
+
+  <p>EMOPIA (Hung et al., ISMIR 2021) is a dataset of 1,087 pop piano clips from 387 songs, each annotated with an emotion quadrant. It was the first dataset to combine both <em>chord information</em> and <em>listener emotion labels</em> in the same resource.</p>
+
+  <h2>The Valence-Arousal Model</h2>
+  <p>EMOPIA uses <strong>Russell's Circumplex Model of Affect</strong> (1980) as its emotion framework. Rather than named categories (like Hevner's clusters), Russell proposed two continuous axes:</p>
+
+  <ul style="margin: 0.5rem 0 1rem 1.5rem; color: #ccc;">
+    <li style="margin-bottom:0.4rem"><strong>Valence</strong> — how positive or negative the feeling is (left = negative, right = positive)</li>
+    <li style="margin-bottom:0.4rem"><strong>Arousal</strong> — how activated or calm the feeling is (down = calm, up = excited)</li>
+  </ul>
+
+  <p>Every emotion can be placed somewhere on this 2D plane. EMOPIA simplifies this to four quadrants (Q1–Q4). Click a quadrant to see examples.</p>
+
+  <div id="va-wrap">
+    <div id="va-canvas-wrap">
+      <canvas id="va-canvas" width="340" height="340"></canvas>
+      <div id="va-tooltip"></div>
+    </div>
+    <div id="va-legend">
+      <div class="q-card q1 active" data-q="1" onclick="highlightQ(1, this)">
+        <div class="q-label">Q1 — High Valence, High Arousal</div>
+        <div class="q-words">Happy, exciting, joyful, energetic, triumphant</div>
+      </div>
+      <div class="q-card q2" data-q="2" onclick="highlightQ(2, this)">
+        <div class="q-label">Q2 — Low Valence, High Arousal</div>
+        <div class="q-words">Angry, tense, agitated, fearful, anxious</div>
+      </div>
+      <div class="q-card q3" data-q="3" onclick="highlightQ(3, this)">
+        <div class="q-label">Q3 — Low Valence, Low Arousal</div>
+        <div class="q-words">Sad, melancholic, gloomy, depressed, mournful</div>
+      </div>
+      <div class="q-card q4" data-q="4" onclick="highlightQ(4, this)">
+        <div class="q-label">Q4 — High Valence, Low Arousal</div>
+        <div class="q-words">Peaceful, serene, calm, tender, content</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>What EMOPIA Contains</h2>
+  <div class="callout">
+    <strong>1,087 clips</strong> · <strong>387 songs</strong> · <strong>4 emotion quadrants</strong> · MIDI available · chord progressions extractable
+  </div>
+
+  <p>Each clip is ~30 seconds of solo piano. The emotion label was assigned by the dataset creators based on the musical content (tempo, dynamics, mode, chord progression).</p>
+
+  <p><strong>EMOPIA+</strong> (2024, Zenodo 13122742) extended this by extracting lead sheets — melody plus chord progressions — from 367 of the clips, with manual key signature corrections. This is the version that makes the chord→emotion connection directly inspectable.</p>
+
+  <h2>Why It Matters for This Project</h2>
+  <p>This project's chord keyword pages were written by hand, guided by Hevner's research and musical intuition. EMOPIA+ provides an empirical check: you could aggregate all chord occurrences in Q3 clips (sad/melancholic) and see if vi and ii dominate. If they do, the keyword page assignments are validated. If they don't, it's a signal that a page might need revision.</p>
+
+  <div class="this-project">
+    <div class="label">Potential use in this project</div>
+    <p>Run the EMOPIA+ chord data through the classifier and compare the predicted quadrant against the annotated quadrant. A high agreement rate would mean the anchor embeddings have successfully internalized the same emotion-to-chord mappings that human listeners perceive in recorded music. A low agreement rate would identify which chord pages need work.</p>
+  </div>
+
+  <h2>Hevner vs. Russell — Which Framework Fits This Project?</h2>
+
+  <table class="compare">
+    <thead>
+      <tr>
+        <th>Framework</th>
+        <th>Type</th>
+        <th>Used by</th>
+        <th>Fit for this project</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="highlight">
+        <td><strong>Hevner (1936)</strong></td>
+        <td>Categorical, 8 named clusters</td>
+        <td>This project's keyword pages</td>
+        <td class="yes">High — adjective lists map directly to keyword pages</td>
+      </tr>
+      <tr>
+        <td><strong>Russell (1980)</strong></td>
+        <td>Continuous, 2 axes (V/A)</td>
+        <td>EMOPIA, most MER research</td>
+        <td>Medium — useful for validation and comparison</td>
+      </tr>
+      <tr>
+        <td><strong>MIREX 5 clusters</strong></td>
+        <td>Categorical, 5 clusters</td>
+        <td>Audio classification competitions</td>
+        <td>Low — genre-contaminated, not chord-specific</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Where to Get It</h2>
+  <p>EMOPIA is freely available for research use:</p>
+  <pre>EMOPIA dataset:   https://zenodo.org/record/5090631
+EMOPIA+ (2024):   https://zenodo.org/records/13122742
+Project page:     https://annahung31.github.io/EMOPIA/
+Paper (ISMIR 21): https://archives.ismir.net/ismir2021/paper/000039.pdf</pre>
+</div>
+
+<footer>
+  SonifyingEmbeddingsPlayground · research reference · 2026-03-25
+</footer>
+
+<script>
+// ── Page switching ──────────────────────────────────────────────────
+function show(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('visible'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('visible');
+  btn.classList.add('active');
+}
+
+// ── Lbl2Vec step toggle ─────────────────────────────────────────────
+function toggleStep(el) {
+  const wasActive = el.classList.contains('active');
+  document.querySelectorAll('.pipe-step').forEach(s => s.classList.remove('active'));
+  if (!wasActive) el.classList.add('active');
+}
+
+// ── Hevner Circle ───────────────────────────────────────────────────
+const CLUSTERS = [
+  {
+    num: 1,
+    label: "Dignified",
+    color: "#7eb8f7",
+    words: ["dignified", "solemn", "serious", "sober", "sacred", "spiritual", "lofty"],
+    chords: ["I", "viidim"],
+    note: "The tonic at rest, or the leading tone suspended — both suggest gravity and formal weight."
+  },
+  {
+    num: 2,
+    label: "Sad",
+    color: "#a0c4ff",
+    words: ["sad", "mournful", "tragic", "doleful", "pathetic", "melancholic", "depressed"],
+    chords: ["vi", "ii"],
+    note: "Minor chords dominate this cluster. vi (A minor) and ii (D minor) are the most emotionally 'downward' diatonic options."
+  },
+  {
+    num: 3,
+    label: "Dreamy",
+    color: "#c5a7f7",
+    words: ["dreamy", "yielding", "longing", "pleading", "plaintive", "tender", "yearning"],
+    chords: ["iii", "ii"],
+    note: "iii (E minor) lives here — ambiguous, floating, not resolved in either direction. Also touches ii's longing quality."
+  },
+  {
+    num: 4,
+    label: "Serene",
+    color: "#7ef7c0",
+    words: ["serene", "gentle", "soothing", "quaint", "leisurely", "tranquil", "restful"],
+    chords: ["IV", "I"],
+    note: "IV (F major) — warm, open, unhurried. I at rest also carries serenity when not approached from tension."
+  },
+  {
+    num: 5,
+    label: "Graceful",
+    color: "#a8f7b0",
+    words: ["graceful", "delicate", "light", "dainty", "sprightly", "playful", "whimsical"],
+    chords: ["I", "IV"],
+    note: "The major tonic in a light, dance-like context. Graceful movement rather than solemn arrival."
+  },
+  {
+    num: 6,
+    label: "Happy",
+    color: "#f7e87e",
+    words: ["happy", "merry", "joyous", "gay", "bright", "cheerful", "jubilant"],
+    chords: ["I", "IV"],
+    note: "Pure major brightness. I and IV in upbeat contexts. These are the most consonant, stable chords in the key."
+  },
+  {
+    num: 7,
+    label: "Exciting",
+    color: "#f7b87e",
+    words: ["exciting", "exhilarating", "agitated", "passionate", "dramatic", "triumphant", "impetuous"],
+    chords: ["V", "viidim"],
+    note: "V (G major) — maximum tension and forward drive. viidim shares the urgency. Both demand resolution."
+  },
+  {
+    num: 8,
+    label: "Vigorous",
+    color: "#f77e7e",
+    words: ["vigorous", "robust", "emphatic", "martial", "ponderous", "forceful", "majestic"],
+    chords: ["V", "I"],
+    note: "The full, emphatic resolution — V arriving at I with force. Triumphant rather than gentle."
+  }
+];
+
+(function drawHevner() {
+  const svg = document.getElementById('hevner-svg');
+  const cx = 210, cy = 210, r = 150, ringW = 52;
+  const n = CLUSTERS.length;
+
+  CLUSTERS.forEach((c, i) => {
+    const angleStart = (i / n) * 2 * Math.PI - Math.PI / 2 - Math.PI / n;
+    const angleEnd   = ((i + 1) / n) * 2 * Math.PI - Math.PI / 2 - Math.PI / n;
+    const gap = 0.04;
+
+    const x1o = cx + r * Math.cos(angleStart + gap);
+    const y1o = cy + r * Math.sin(angleStart + gap);
+    const x2o = cx + r * Math.cos(angleEnd - gap);
+    const y2o = cy + r * Math.sin(angleEnd - gap);
+    const x1i = cx + (r - ringW) * Math.cos(angleStart + gap);
+    const y1i = cy + (r - ringW) * Math.sin(angleStart + gap);
+    const x2i = cx + (r - ringW) * Math.cos(angleEnd - gap);
+    const y2i = cy + (r - ringW) * Math.sin(angleEnd - gap);
+
+    const d = [
+      `M ${x1i} ${y1i}`,
+      `L ${x1o} ${y1o}`,
+      `A ${r} ${r} 0 0 1 ${x2o} ${y2o}`,
+      `L ${x2i} ${y2i}`,
+      `A ${r - ringW} ${r - ringW} 0 0 0 ${x1i} ${y1i}`,
+      'Z'
+    ].join(' ');
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', d);
+    path.setAttribute('fill', c.color + '33');
+    path.setAttribute('stroke', c.color + '88');
+    path.setAttribute('stroke-width', '1');
+    path.style.cursor = 'pointer';
+    path.style.transition = 'fill 0.15s';
+    path.addEventListener('mouseenter', () => path.setAttribute('fill', c.color + '66'));
+    path.addEventListener('mouseleave', () => path.setAttribute('fill', c.color + '33'));
+    path.addEventListener('click', () => showCluster(c, path));
+    svg.appendChild(path);
+
+    // Label
+    const mid = (angleStart + angleEnd) / 2;
+    const lx = cx + (r - ringW / 2) * Math.cos(mid);
+    const ly = cy + (r - ringW / 2) * Math.sin(mid);
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', lx);
+    text.setAttribute('y', ly);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('dominant-baseline', 'middle');
+    text.setAttribute('fill', c.color);
+    text.setAttribute('font-size', '11');
+    text.setAttribute('font-family', '-apple-system, BlinkMacSystemFont, sans-serif');
+    text.setAttribute('font-weight', '600');
+    text.setAttribute('pointer-events', 'none');
+    text.textContent = c.label;
+    svg.appendChild(text);
+  });
+
+  // Center label
+  const cl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  cl.setAttribute('x', cx); cl.setAttribute('y', cy);
+  cl.setAttribute('text-anchor', 'middle');
+  cl.setAttribute('dominant-baseline', 'middle');
+  cl.setAttribute('fill', '#444');
+  cl.setAttribute('font-size', '11');
+  cl.setAttribute('font-family', '-apple-system, BlinkMacSystemFont, sans-serif');
+  cl.textContent = 'Hevner 1936';
+  svg.appendChild(cl);
+})();
+
+let activeClusterPath = null;
+
+function showCluster(c, path) {
+  if (activeClusterPath) {
+    activeClusterPath.setAttribute('stroke-width', '1');
+    activeClusterPath.setAttribute('fill', activeClusterPath._baseColor + '33');
+  }
+  path._baseColor = c.color;
+  path.setAttribute('stroke-width', '2');
+  path.setAttribute('fill', c.color + '88');
+  activeClusterPath = path;
+
+  const detail = document.getElementById('hevner-detail');
+  detail.innerHTML = `
+    <h4 style="color:${c.color}">Cluster ${c.num}: ${c.label}</h4>
+    <div class="words">${c.words.map(w => `<span class="word">${w}</span>`).join('')}</div>
+    <div class="chord-link">Closest chords in this project: ${c.chords.map(ch => `<span>${ch}</span>`).join(' ')}</div>
+    <p style="font-size:12px;color:var(--muted);margin-top:0.6rem;margin-bottom:0">${c.note}</p>
+  `;
+}
+
+// ── EMOPIA Valence-Arousal Canvas ───────────────────────────────────
+const CHORD_VA = [
+  { label: "I",      v:  0.72, a:  0.15, q: 4, color: "#7ef7c0" },
+  { label: "ii",     v: -0.45, a: -0.20, q: 3, color: "#7eb8f7" },
+  { label: "iii",    v: -0.15, a: -0.35, q: 3, color: "#c5a7f7" },
+  { label: "IV",     v:  0.55, a: -0.20, q: 4, color: "#7ef7c0" },
+  { label: "V",      v:  0.30, a:  0.70, q: 1, color: "#f7e87e" },
+  { label: "vi",     v: -0.60, a: -0.10, q: 3, color: "#7eb8f7" },
+  { label: "viidim", v: -0.20, a:  0.65, q: 2, color: "#f77e7e" },
+];
+
+const Q_COLORS = { 1: "#f7e87e", 2: "#f77e7e", 3: "#7eb8f7", 4: "#7ef7c0" };
+
+let activeQ = 1;
+
+function drawVA(highlightQ_num) {
+  const canvas = document.getElementById('va-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const pad = 30;
+  const cw = W - 2 * pad, ch = H - 2 * pad;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Background quadrants
+  const qAlpha = (q) => q === highlightQ_num ? '22' : '0d';
+  ctx.fillStyle = Q_COLORS[1] + qAlpha(1); ctx.fillRect(pad + cw/2, pad, cw/2, ch/2); // Q1 top-right
+  ctx.fillStyle = Q_COLORS[2] + qAlpha(2); ctx.fillRect(pad, pad, cw/2, ch/2);          // Q2 top-left
+  ctx.fillStyle = Q_COLORS[3] + qAlpha(3); ctx.fillRect(pad, pad + ch/2, cw/2, ch/2);   // Q3 bottom-left
+  ctx.fillStyle = Q_COLORS[4] + qAlpha(4); ctx.fillRect(pad + cw/2, pad + ch/2, cw/2, ch/2); // Q4 bottom-right
+
+  // Grid lines
+  ctx.strokeStyle = '#2a2a2a';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad + cw/2, pad); ctx.lineTo(pad + cw/2, pad + ch);
+  ctx.moveTo(pad, pad + ch/2); ctx.lineTo(pad + cw, pad + ch/2);
+  ctx.stroke();
+
+  // Axes labels
+  ctx.fillStyle = '#555';
+  ctx.font = '10px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('+ Valence', pad + cw - 10, pad + ch/2 - 6);
+  ctx.fillText('- Valence', pad + 10, pad + ch/2 - 6);
+  ctx.fillText('+ Arousal', pad + cw/2 + 4, pad + 12);
+  ctx.fillText('- Arousal', pad + cw/2 + 4, pad + ch - 6);
+
+  // Quadrant labels
+  ctx.font = '10px -apple-system, sans-serif';
+  ctx.fillStyle = Q_COLORS[1] + '88';
+  ctx.textAlign = 'center';
+  ctx.fillText('Q1', pad + cw * 0.75, pad + 14);
+  ctx.fillStyle = Q_COLORS[2] + '88';
+  ctx.fillText('Q2', pad + cw * 0.25, pad + 14);
+  ctx.fillStyle = Q_COLORS[3] + '88';
+  ctx.fillText('Q3', pad + cw * 0.25, pad + ch - 6);
+  ctx.fillStyle = Q_COLORS[4] + '88';
+  ctx.fillText('Q4', pad + cw * 0.75, pad + ch - 6);
+
+  // Chord dots
+  CHORD_VA.forEach(c => {
+    const px = pad + (c.v + 1) / 2 * cw;
+    const py = pad + (1 - (c.a + 1) / 2) * ch;
+    const isHighlighted = c.q === highlightQ_num;
+    const r = isHighlighted ? 10 : 7;
+    const alpha = isHighlighted ? 'ff' : '55';
+
+    ctx.beginPath();
+    ctx.arc(px, py, r, 0, 2 * Math.PI);
+    ctx.fillStyle = c.color + alpha;
+    ctx.fill();
+    ctx.strokeStyle = c.color + (isHighlighted ? 'ff' : '88');
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.fillStyle = isHighlighted ? c.color : c.color + '88';
+    ctx.font = `${isHighlighted ? 'bold ' : ''}11px -apple-system, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(c.label, px, py - r - 4);
+  });
+
+  c_meta = { pad, cw, ch };
+}
+
+let c_meta = {};
+
+function vaPos(chord) {
+  const { pad, cw, ch } = c_meta;
+  return {
+    x: pad + (chord.v + 1) / 2 * cw,
+    y: pad + (1 - (chord.a + 1) / 2) * ch
+  };
+}
+
+function highlightQ(q, btn) {
+  activeQ = q;
+  document.querySelectorAll('.q-card').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  drawVA(q);
+}
+
+// Mouse tooltip on VA canvas
+document.getElementById('va-canvas').addEventListener('mousemove', function(e) {
+  const rect = this.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (this.width / rect.width);
+  const my = (e.clientY - rect.top) * (this.height / rect.height);
+  const { pad, cw, ch } = c_meta;
+
+  let found = null;
+  CHORD_VA.forEach(c => {
+    const px = pad + (c.v + 1) / 2 * cw;
+    const py = pad + (1 - (c.a + 1) / 2) * ch;
+    const dist = Math.sqrt((mx - px) ** 2 + (my - py) ** 2);
+    if (dist < 18) found = { c, px, py };
+  });
+
+  const tip = document.getElementById('va-tooltip');
+  if (found) {
+    const chordNames = {
+      'I': 'C major', 'ii': 'D minor', 'iii': 'E minor',
+      'IV': 'F major', 'V': 'G major', 'vi': 'A minor', 'viidim': 'B dim'
+    };
+    tip.style.display = 'block';
+    tip.style.left = (found.px + 16) + 'px';
+    tip.style.top = (found.py - 20) + 'px';
+    tip.innerHTML = `<strong style="color:${found.c.color}">${found.c.label}</strong> — ${chordNames[found.c.label]}<br>
+      <span style="color:var(--muted)">Valence: ${found.c.v > 0 ? '+' : ''}${found.c.v.toFixed(2)}<br>
+      Arousal: ${found.c.a > 0 ? '+' : ''}${found.c.a.toFixed(2)}</span>`;
+  } else {
+    tip.style.display = 'none';
+  }
+});
+
+document.getElementById('va-canvas').addEventListener('mouseleave', function() {
+  document.getElementById('va-tooltip').style.display = 'none';
+});
+
+// Initial draw
+window.addEventListener('load', () => {
+  drawVA(1);
+});
+</script>
+</body>
+</html>

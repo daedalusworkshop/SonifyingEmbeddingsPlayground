@@ -11,8 +11,10 @@ from chords import ChordResult
 ROOT = Path(__file__).parent.parent
 ORC_PATH = ROOT / "instruments" / "pad.orc"
 
-DURATION = 2.0
-AMPLITUDE = 0.4
+DURATION = 3600.0  # hold until explicitly stopped by the next chord
+AMPLITUDE = 0.15
+DRONE_FREQ = 130.81   # C3 — root of I
+DRONE_AMP  = 0.12
 
 
 class CsoundNotAvailableError(Exception):
@@ -41,17 +43,27 @@ class CsoundBridge:
         self._pt = ctcsound.CsoundPerformanceThread(self._cs.csound())
         self._pt.play()
 
+        # Start tonic drone on instr 2 (runs for session lifetime, survives chord changes)
+        self._pt.scoreEvent(False, "i", [2, 0, 3600, DRONE_AMP, DRONE_FREQ])
+
         atexit.register(self.close)
 
     def play_chord(self, result: ChordResult) -> None:
         confidence_tag = "  [LOW CONFIDENCE]" if result.low_confidence else ""
         print(f"Playing {result.numeral} ({result.name}) — score: {result.score:.2f}{confidence_tag}")
 
-        # Stop any currently playing notes
-        self._pt.inputMessage("i -1 0 0")
+        # instr 99 runs turnoff2 × 3 inside Csound — reliably stops all 3 voices.
+        # External inputMessage cannot find notes started via scoreEvent (produces
+        # "could not find playing instr 1.000000" — verified in production logs).
+        self._pt.scoreEvent(False, "i", [99, 0, 0.001])
 
+        # New voices start 50 ms later; old voices release for 50 ms (natural fade)
         for freq in result.frequencies:
-            self._pt.scoreEvent(False, "i", [1, 0, DURATION, AMPLITUDE, freq])
+            self._pt.scoreEvent(False, "i", [1, 0.05, DURATION, AMPLITUDE, freq])
+
+    def stop_all(self) -> None:
+        """Stop all playing chord voices (leaves drone intact)."""
+        self._pt.scoreEvent(False, "i", [99, 0, 0.001])
 
     def play_progression(self, chords: list[ChordResult], tempo_bpm: float = 80) -> None:
         """Stub for future progression mode."""

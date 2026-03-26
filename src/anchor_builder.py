@@ -17,7 +17,11 @@ ROOT = Path(__file__).parent.parent
 CHORDS_DIR = ROOT / "data" / "chords"
 ANCHORS_PATH = ROOT / "data" / "anchors.pt"
 META_PATH = ROOT / "data" / "anchors_meta.json"
-MODEL_NAME = "all-MiniLM-L6-v2"
+MODEL_NAME = "Qwen/Qwen3-Embedding-0.6B"
+INSTRUCTION = (
+    "Instruct: Represent this text by its emotional and affective character "
+    "for matching to a musical chord.\nQuery: "
+)
 
 
 def _hash_file(path: Path) -> str:
@@ -56,10 +60,10 @@ def build(force: bool = False) -> torch.Tensor:
     for chord in CHORDS:
         fp = CHORDS_DIR / chord.keyword_file
         raw = fp.read_text()
-        texts.append(_strip_markdown(raw))
+        texts.append(INSTRUCTION + _strip_markdown(raw))
         hashes[chord.keyword_file] = _hash_file(fp)
 
-    anchors = model.encode(texts, convert_to_tensor=True)
+    anchors = model.encode(texts, convert_to_tensor=True, normalize_embeddings=True)
 
     # Validate separation
     sim_matrix = util.cos_sim(anchors, anchors)
